@@ -1,0 +1,76 @@
+Hand tracking and gesture recognition system
+for human-computer interaction using low-cost hardware
+Yeo 2013
+
+1. Camera Module (Image preprocessing)
+	1.1 Background Subtraction
+		-Calculate absolute differences
+		-Split to YCrCb channels
+		-Threshold channels with the differences
+		-Remove noise with Morphology
+		-Merge channels
+		-Mask with the original image with AND
+	1.2 Face Removal
+		-Detect face with Haar-like features (Viola Jones)
+		-Flood fill detected face
+	1.3 Canny edges segmentation
+		-Increase image contrast
+		-Use canny detector with low threshold
+		-Apply thick lines to detected contours
+	1.4 Skin color extraction
+		-Apply threshold from "http://suraj.lums.edu.pk/~cs504m04/csvt99.pdf"
+		-Extract skin colored images within a narrow range
+	1.5 Morphology operations and image smoothing
+		-Morphology opening(erosion -> dilation)
+		-Apply in background subraction and skin extraction
+		-Apply a gaussian filer
+		-Threshold binarization
+	1.6 Depth Segmentation
+		-Use kinect to find depth
+		-Apply a certain depth distance
+		-Use steps 1.1-1.5 only on those with the depth threshold
+2. Detection Module 
+	2.1 Contour Extraction and Polygon Approximation
+		-Remove noise by pruning blob to small areas
+		-Do polygon approximation on extracted contour
+	2.2 Palm Detection
+		-Produce bounding rectangle outside contours
+		-Find the longest distance of any point inside the contour with the contour perimeter
+		-Use the detected point as center of the circle
+		-Inscribe largest possible circle in the contours
+	2.3 Setting Region of Interest(ROI)
+		-Using the center of the inscribed circle in 2.2, produce a larger circle with 3.5x 
+			the size of the radius of the previous circle
+	2.4 Convex hull and convexity defects extraction
+		-Produce convex hull
+		-Compute convexity defects
+		-For every defect, save Ps, Pe, Pd which are start point, end point and depth point respectively
+		-Save depth length (d_length)
+	2.5 Hand/Fingertips location and direction detection
+		FINGERTIPS CRITERIA
+			1. Depth of defects (d_length) must be longer than palm radius but shorter than enclosing circle
+			2. Angle between Ps and Pe must be less than 90 degrees
+			3. K-curvature must be lowen than 60 degrees
+		CALCULATING K-curvature
+			1. Find areas w here Fingertips criteria 1 and 2 apply
+			2. Start from a convex hull point(C_i). Traverse forward and backward 20 times along the contour perimeter
+			3. Calculate K-curvature by computing the angle between (C_i, C_i-30) and (C_i, C_i+30)
+			4. Lower curvature means a peak thus a finger/protrusion
+			5. From the 20 points, save the local maxima
+			6. Get direction by finding the lane between the local maxima and middle point of (C_i, C_i-30) and (C_i, C_i+30)
+	2.6 Hand gesture detection (possibly unnecessary)
+	2.7 Kalman Filter (remove shaky hands, possible unnecessary)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
